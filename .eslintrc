@@ -1,0 +1,11 @@
+{
+  "parserOptions": {
+    "ecmaVersion": 6,
+    "node": true
+  },
+  "rules": {
+    "linebreak-style": "off",
+    "max-len": "off"
+  },
+  "extends": "eslint-config-google"
+}
