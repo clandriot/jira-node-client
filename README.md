@@ -18,13 +18,28 @@ jira.areJiraCredentialsMissing(); // returns true if any of the 2 credentials is
 ```
 To get data:
 ```javascript
-jira.execJiraQuery('https://www.myjirainstance.com/jira/rest/api/latest/search?jql=project = PROJKEY and issuetype not in (Epic,subTaskIssueTypes()) and resolution != Unresolved')
-  .then((response) => {
-    // response is the JSON object returned by the api
+jira.execJiraQuery('https://www.myjirainstance.com/jira/rest/api/latest/search?jql=project = PROJKEY and issuetype not in (Epic,subTaskIssueTypes()) and resolution != Unresolved', true)
+  .then((response) => { // response is the JSON object returned by the api
+    let nbIssues = response.total;
+    let firstIssueKey = response.issues[0].key;
   })
   .catch((error) => {
     // error is an object including 2 properties: code and message
   });
+```
+
+#### Running tests
+To run the tests suite, first install devlopment dependencies:
+```
+npm install
+```
+Then run the tests:
+```
+npm test
+```
+To check code coverage, run:
+```
+npm run cover
 ```
 
 #### To do
