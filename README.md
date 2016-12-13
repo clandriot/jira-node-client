@@ -27,6 +27,7 @@ jira.execJiraQuery('https://www.myjirainstance.com/jira/rest/api/latest/search?j
     // error is an object including 2 properties: code and message
   });
 ```
+Note: Jira REST Apis and JSON format can be found at https://docs.atlassian.com/jira/REST/cloud/.
 
 #### Running tests
 To run the tests suite, first install devlopment dependencies:
