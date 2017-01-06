@@ -2,7 +2,7 @@
   "name": "jira-node-client",
   "version": "0.0.1",
   "description": "provide tools to run jira rest api managing retries and multiple pages results",
-  "main": "jira.js",
+  "main": "./lib/jira.js",
   "scripts": {
     "cover": "./node_modules/.bin/istanbul cover ./node_modules/mocha/bin/_mocha -- ./test/ --recursive",
     "start": "node lib/jira.js",
@@ -13,7 +13,7 @@
     "node",
     "client"
   ],
-  "author": "Cyril Landriot <clandriot@axway.com>",
+  "author": "Cyril Landriot <clandriot@gmail.com>",
   "license": "ISC",
   "dependencies": {
     "requestify": "^0.2.5"
