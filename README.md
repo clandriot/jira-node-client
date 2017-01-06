@@ -7,6 +7,11 @@ jira-node-client is a node module providing a function to easily get data from J
 * if response includes several pages (total > maxResults) all pages optionally retrieved and aggregated in the response
 * In case of specific errors (5xx, ECONNRESET, ENOTCONN or if the body of the error is 'timeout exceeded'), several attempts are done with a timeout between each ones (5 attempts, 1 second timeout)
 
+#### Installation
+```
+npm install jira-node-client
+```
+
 #### How to use?
 First, make credentials are set as environment variables:
 * JIRA_USER
