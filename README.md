@@ -13,7 +13,7 @@ npm install jira-node-client
 ```
 
 #### How to use?
-First, make credentials are set as environment variables:
+First, make sure credentials are set as environment variables:
 * JIRA_USER
 * JIRA_PASSWORD
 
