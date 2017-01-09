@@ -3,6 +3,10 @@
   "version": "0.0.1",
   "description": "provide tools to run jira rest api managing retries and multiple pages results",
   "main": "./lib/jira.js",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/clandriot/jira-node-client.git"
+  },
   "scripts": {
     "cover": "./node_modules/.bin/istanbul cover ./node_modules/mocha/bin/_mocha -- ./test/ --recursive",
     "start": "node lib/jira.js",
