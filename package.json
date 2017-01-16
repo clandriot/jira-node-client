@@ -1,6 +1,6 @@
 {
   "name": "jira-node-client",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "provide tools to run jira rest api managing retries and multiple pages results",
   "main": "./lib/jira.js",
   "repository": {
