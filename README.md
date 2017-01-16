@@ -1,6 +1,6 @@
 ## jira-node-client - A node client to easily get data from Jira
 
-[![Build Status](https://secure.travis-ci.org/clandriot/jira-node-client.png?branch=master)](http://travis-ci.org/clandriot/jira-node-client) [![Coverage Status](https://coveralls.io/repos/github/clandriot/jira-node-client/badge.svg)](https://coveralls.io/github/clandriot/jira-node-client)
+[![Build Status](https://secure.travis-ci.org/clandriot/jira-node-client.png?branch=master)](http://travis-ci.org/clandriot/jira-node-client) [![Coverage Status](https://coveralls.io/repos/github/clandriot/jira-node-client/badge.svg)](https://coveralls.io/github/clandriot/jira-node-client) [![Dependency Status](https://www.versioneye.com/user/projects/587cc73f5a9a49003f91d136/badge.svg?style=flat-square)](https://www.versioneye.com/user/projects/587cc73f5a9a49003f91d136) [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/clandriot/jira-node-client/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/clandriot/jira-node-client/?branch=master)
 
 jira-node-client is a node module providing a function to easily get data from Jira with pages aggreation and retries features.
 
