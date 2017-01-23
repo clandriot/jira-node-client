@@ -54,9 +54,20 @@ describe('getBaseUrl', () => {
     });
   });
 
+  describe('getHeader', () => {
+    it('getHeaders() builds header including cookie', () => testThat
+      .given(() => 'cookiename=cookievalue')
+      .when((sessionCookie) => cookie.getHeader(sessionCookie))
+      .then((header) => {
+        expect(header).to.have.property('cookie', 'cookiename=cookievalue');
+        expect(header).to.have.property('Cache-Control', 'public, max-age=60');
+      })
+    );
+  });
+
   describe('getCookie', () => {
     it('getCookie() rejects with if url not set', () => {
-      return expect(cookie.getCookie('user', 'password')).to.eventually.be.rejected
+      return expect(cookie.login('user', 'password')).to.eventually.be.rejected
         .then((error) => {
           expect(error).to.be.an.instanceof(Error);
         });
@@ -67,7 +78,7 @@ describe('getBaseUrl', () => {
         let response = '{"session": {"name": "studio.crowd.tokenkey"}}';
         return Promise.resolve({code: 200, headers: headers, body: response});
       });
-      expect(cookie.getCookie('dummy-user', 'dummy-password', 'http://www.dummyurl/rest/api/2/issue/ID-78')).to.eventually.be.fulfilled;
+      expect(cookie.login('dummy-user', 'dummy-password', 'http://www.dummyurl/rest/api/2/issue/ID-78')).to.eventually.be.fulfilled;
     });
     it('getCookie() returns session Cookie', () => {
       sandbox.stub(requestify, 'post', (url, body, option) => {
@@ -75,7 +86,7 @@ describe('getBaseUrl', () => {
         let response = '{"session": {"name": "studio.crowd.tokenkey"}, "loginInfo": {"failedLoginCount": 1, "loginCount": 230, "lastFailedLoginTime": "2017-01-17T10:20:43.467+0100", "previousLoginTime": "2017-01-17T17:11:46.798+0100"}}';
         return Promise.resolve({code: 200, headers: headers, body: response});
       });
-      return expect(cookie.getCookie('dummy-user', 'dummy-password', 'http://www.dummyurl/rest/api/2/issue/ID-78')).to.eventually.be.fulfilled
+      return expect(cookie.login('dummy-user', 'dummy-password', 'http://www.dummyurl/rest/api/2/issue/ID-78')).to.eventually.be.fulfilled
         .then((cookie) => {
           expect(cookie).to.equal('studio.crowd.tokenkey=gW34EFQfK8Kbwpp6HkHmng00');
         });
