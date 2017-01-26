@@ -17,7 +17,7 @@ beforeEach(() => sandbox = sinon.sandbox.create());
 afterEach(() => sandbox.restore());
 
 
-describe.only('getBaseUrl', () => {
+describe('getBaseUrl', () => {
   it('getBaseUrl() returns base url if valid url', () => testThat
     .given(() => 'http://www.dummyserver:23456/rest/api/2/issue/ID-5')
     .when((url) => getBaseUrl(url))
