@@ -74,33 +74,33 @@ describe('areJiraCredentialsMissing', () => {
 
 describe('execJiraQuery', () => {
   it('execJiraQuery returns parsed response on 200', () => {
-    sandbox.stub(requestify, 'get', (url, option) => {
+    sandbox.stub(requestify, 'get', () => {
       return Promise.resolve({code: 200, body: '{"message": "successful!!"}'});
     });
     return expect(jira.execJiraQuery('', false)).to.eventually.have.property('message', 'successful!!');
   });
   it('execJiraQuery returns error on 400', () => {
-    sandbox.stub(requestify, 'get', (url, option) => {
+    sandbox.stub(requestify, 'get', () => {
       return Promise.reject({code: 400, body: 'Failed!'});
     });
     return expect(jira.execJiraQuery('', false)).to.eventually.be.rejected;
   });
   it('execJiraQuery returns error on 500', function() {
     // this.timeout(8000); // need to increase Mocha timeout to give enough time to the retries
-    sandbox.stub(requestify, 'get', (url, option) => {
+    sandbox.stub(requestify, 'get', () => {
       return Promise.reject({code: 500, body: 'Failed!'});
     });
     return expect(jira.execJiraQuery('', false)).to.eventually.be.rejected;
   });
   it('execJiraQuery returns error on 502', function() {
     // this.timeout(8000); // need to increase Mocha timeout to give enough time to the retries
-    sandbox.stub(requestify, 'get', (url, option) => {
+    sandbox.stub(requestify, 'get', () => {
       return Promise.reject({code: 502, body: 'Failed!'});
     });
     return expect(jira.execJiraQuery('', false)).to.eventually.be.rejected;
   });
   it('execJiraQuery fails with a not JSON response', () => {
-    sandbox.stub(requestify, 'get', (url, option) => {
+    sandbox.stub(requestify, 'get', () => {
       return Promise.resolve({code: 200, body: 'Not JSON'});
     });
     return expect(jira.execJiraQuery('', false)).to.eventually.be.rejected
@@ -113,7 +113,7 @@ describe('execJiraQuery', () => {
     let first = '{"resultset": "first"}';
     let second = '{"resultset": "second"}';
     let last = '{"resultset": "last"}';
-    sandbox.stub(requestify, 'get', (url, option) => {
+    sandbox.stub(requestify, 'get', (url) => {
       if (url === '') {
         return Promise.resolve({code: 200, body: '{"startAt": 0,"total": 12,"maxResults": 5,"issues": [' + first + ']}'});
       } else if (url === '&startAt=5') {
@@ -139,7 +139,7 @@ describe('execJiraQuery', () => {
     let first = '{"resultset": "first"}';
     let second = '{"resultset": "second"}';
     let last = '{"resultset": "last"}';
-    sandbox.stub(requestify, 'get', (url, option) => {
+    sandbox.stub(requestify, 'get', (url) => {
       if (url === '') {
         return Promise.resolve({code: 200, body: '{"startAt": 0,"total": 12,"maxResults": 5,"issues": [' + first + ']}'});
       } else if (url === '&startAt=5') {
@@ -161,7 +161,7 @@ describe('execJiraQuery', () => {
   });
   it('execJiraQuery is rejected if failure occus during aggregation', () => {
     let first = '{"resultset": "first"}';
-    sandbox.stub(requestify, 'get', (url, option) => {
+    sandbox.stub(requestify, 'get', (url) => {
       if (url === '') {
         return Promise.resolve({code: 200, body: '{"startAt": 0,"total": 8,"maxResults": 5,"issues": [' + first + ']}'});
       } else if (url === '&startAt=5') {
@@ -174,19 +174,19 @@ describe('execJiraQuery', () => {
   describe('execJiraQuery with CBA', () => {
     it('execJiraQuery returns parsed response on 200 with CBA', () => {
       jira.config.authentication = 'cookie';
-      sandbox.stub(cookieAuth, 'login', (user, password, url) => {
+      sandbox.stub(cookieAuth, 'login', () => {
         let header = {'set-cookie': ['mycookie=RUTN87766HG']};
         let body = '{"session": {"name": "mycookie"}}';
         return Promise.resolve({code: 200, headers: header, body: body});
       });
-      sandbox.stub(requestify, 'get', (url, option) => {
+      sandbox.stub(requestify, 'get', () => {
         return Promise.resolve({code: 200, body: '{"message": "successful!!"}'});
       });
       return expect(jira.execJiraQuery('', true)).to.eventually.be.fulfilled;
     });
     it('execJiraQuery rejects if can\'t get cookie', () => {
       jira.config.authentication = 'cookie';
-      sandbox.stub(cookieAuth, 'login', (user, password, url) => {
+      sandbox.stub(cookieAuth, 'login', () => {
         return Promise.reject(new Error('can\'t get cookie'));
       });
       return expect(jira.execJiraQuery('', false)).to.eventually.be.rejected
@@ -198,7 +198,7 @@ describe('execJiraQuery', () => {
       let second = '{"resultset": "second"}';
       let last = '{"resultset": "last"}';
       let expired = true;
-      sandbox.stub(requestify, 'get', (url, option) => {
+      sandbox.stub(requestify, 'get', (url) => {
         if (url === '') {
           return Promise.resolve({code: 200, body: '{"startAt": 0,"total": 12,"maxResults": 5,"issues": [' + first + ']}'});
         } else if (url === '&startAt=5') {
@@ -212,7 +212,7 @@ describe('execJiraQuery', () => {
           return Promise.resolve({code: 200, body: '{"startAt": 10,"total": 12,"maxResults": 5,"issues": [' + last + ']}'});
         }
       });
-      sandbox.stub(cookieAuth, 'login', (user, password, url) => {
+      sandbox.stub(cookieAuth, 'login', () => {
         let header = {'set-cookie': ['mycookie=RUTN87766HG']};
         let body = '{"session": {"name": "mycookie"}}';
         return Promise.resolve({code: 200, headers: header, body: body});
