@@ -24,6 +24,16 @@ First, make sure credentials are set as environment variables:
 const jira = require('jira-node-client');
 jira.areJiraCredentialsMissing(); // returns true if any of the 2 credentials is not set
 ```
+
+#### Authentication
+Default behavior is basic authentication, meaning that user and password is set in the header of each request to Jira.
+But you can also enable cookie based authentication, meaning that a first login will retrieve a cookie that will be added to all further api calls. If you application runs long enough to reach cookie expiration, this is detected and a new cookie is automatically retrieved. This will so remain transparent.
+To enable cookie based authentication
+```javascript
+const jira = require('jira-node-client');
+jira.config.authentication = 'cookie'; // enable cookie based authentication
+```
+
 ##### To get data
 ```javascript
 const jira = require('jira-node-client');
