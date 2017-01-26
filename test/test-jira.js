@@ -5,13 +5,21 @@ const expect = chai.expect;
 const chaiAsPromised = require('chai-as-promised');
 const rewire = require('rewire');
 const requestify = require('requestify');
-const jira = rewire('../lib/jira.js');
+const jira = rewire('../lib/jira');
+const cookieAuth = require('../lib/cookieAuthentication');
 const testThat = test.promise;
 let sandbox = null;
 
-before(() => chai.use(chaiAsPromised));
+before(() => {
+  chai.use(chaiAsPromised);
+  jira.config.retryTimeout = 10;
+  jira.config.authentication = 'basic';
+});
 
-beforeEach(() => sandbox = sinon.sandbox.create());
+beforeEach(() => {
+  sandbox = sinon.sandbox.create();
+  jira.__set__('sessionCookie', null);
+});
 
 afterEach(() => sandbox.restore());
 
@@ -64,7 +72,7 @@ describe('areJiraCredentialsMissing', () => {
   });
 });
 
-describe('execJiraQuery', function() {
+describe('execJiraQuery', () => {
   it('execJiraQuery returns parsed response on 200', () => {
     sandbox.stub(requestify, 'get', (url, option) => {
       return Promise.resolve({code: 200, body: '{"message": "successful!!"}'});
@@ -78,14 +86,14 @@ describe('execJiraQuery', function() {
     return expect(jira.execJiraQuery('', false)).to.eventually.be.rejected;
   });
   it('execJiraQuery returns error on 500', function() {
-    this.timeout(8000); // need to increase Mocha timeout to give enough time to the retries
+    // this.timeout(8000); // need to increase Mocha timeout to give enough time to the retries
     sandbox.stub(requestify, 'get', (url, option) => {
       return Promise.reject({code: 500, body: 'Failed!'});
     });
     return expect(jira.execJiraQuery('', false)).to.eventually.be.rejected;
   });
   it('execJiraQuery returns error on 502', function() {
-    this.timeout(8000); // need to increase Mocha timeout to give enough time to the retries
+    // this.timeout(8000); // need to increase Mocha timeout to give enough time to the retries
     sandbox.stub(requestify, 'get', (url, option) => {
       return Promise.reject({code: 502, body: 'Failed!'});
     });
@@ -157,9 +165,67 @@ describe('execJiraQuery', function() {
       if (url === '') {
         return Promise.resolve({code: 200, body: '{"startAt": 0,"total": 8,"maxResults": 5,"issues": [' + first + ']}'});
       } else if (url === '&startAt=5') {
-        return Promise.resolve({code: 400, body: 'Failed!'});
+        return Promise.reject({code: 400, body: 'Failed!'});
       }
     });
     return expect(jira.execJiraQuery('', true)).to.eventually.be.rejected;
+  });
+
+  describe('execJiraQuery with CBA', () => {
+    it('execJiraQuery returns parsed response on 200 with CBA', () => {
+      jira.config.authentication = 'cookie';
+      sandbox.stub(cookieAuth, 'login', (user, password, url) => {
+        let header = {'set-cookie': ['mycookie=RUTN87766HG']};
+        let body = '{"session": {"name": "mycookie"}}';
+        return Promise.resolve({code: 200, headers: header, body: body});
+      });
+      sandbox.stub(requestify, 'get', (url, option) => {
+        return Promise.resolve({code: 200, body: '{"message": "successful!!"}'});
+      });
+      return expect(jira.execJiraQuery('', true)).to.eventually.be.fulfilled;
+    });
+    it('execJiraQuery rejects if can\'t get cookie', () => {
+      jira.config.authentication = 'cookie';
+      sandbox.stub(cookieAuth, 'login', (user, password, url) => {
+        return Promise.reject(new Error('can\'t get cookie'));
+      });
+      return expect(jira.execJiraQuery('', false)).to.eventually.be.rejected
+        .then((error) => expect(error.message).to.equal('can\'t get cookie'));
+    });
+    it('execJiraQuery returns parsed response on 200 with CBA with expired cookie in the middle', () => {
+      jira.config.authentication = 'cookie';
+      let first = '{"resultset": "first"}';
+      let second = '{"resultset": "second"}';
+      let last = '{"resultset": "last"}';
+      let expired = true;
+      sandbox.stub(requestify, 'get', (url, option) => {
+        if (url === '') {
+          return Promise.resolve({code: 200, body: '{"startAt": 0,"total": 12,"maxResults": 5,"issues": [' + first + ']}'});
+        } else if (url === '&startAt=5') {
+          if ( expired === true ) {
+            expired = false;
+            return Promise.reject({code: 401, body: '{"message": "cookie expired!!"}'});
+          } else {
+            return Promise.resolve({code: 200, body: '{"startAt": 5,"total": 12,"maxResults": 5,"issues": [' + second + ']}'});
+          }
+        } else {
+          return Promise.resolve({code: 200, body: '{"startAt": 10,"total": 12,"maxResults": 5,"issues": [' + last + ']}'});
+        }
+      });
+      sandbox.stub(cookieAuth, 'login', (user, password, url) => {
+        let header = {'set-cookie': ['mycookie=RUTN87766HG']};
+        let body = '{"session": {"name": "mycookie"}}';
+        return Promise.resolve({code: 200, headers: header, body: body});
+      });
+      return expect(jira.execJiraQuery('', true)).to.eventually.be.fulfilled
+        .then((response) => {
+          expect(response).to.have.property('startAt', 0);
+          expect(response).to.have.property('total', 12);
+          expect(response).to.have.property('maxResults', 12);
+          expect(response).to.have.property('issues');
+          expect(response.issues).to.be.an('array');
+          expect(response.issues).to.have.length(3);
+        });
+    });
   });
 });

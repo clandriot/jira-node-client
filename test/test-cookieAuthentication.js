@@ -65,14 +65,14 @@ describe('getBaseUrl', () => {
     );
   });
 
-  describe('getCookie', () => {
-    it('getCookie() rejects with if url not set', () => {
+  describe('login', () => {
+    it('login() rejects with if url not set', () => {
       return expect(cookie.login('user', 'password')).to.eventually.be.rejected
         .then((error) => {
           expect(error).to.be.an.instanceof(Error);
         });
     });
-    it('getCookie() rejects if no cookie is in header', () => {
+    it('login() rejects if no cookie is in header', () => {
       sandbox.stub(requestify, 'post', (url, body, option) => {
         let headers = {'set-cookie': ''};
         let response = '{"session": {"name": "studio.crowd.tokenkey"}}';
@@ -80,7 +80,7 @@ describe('getBaseUrl', () => {
       });
       expect(cookie.login('dummy-user', 'dummy-password', 'http://www.dummyurl/rest/api/2/issue/ID-78')).to.eventually.be.fulfilled;
     });
-    it('getCookie() returns session Cookie', () => {
+    it('login() returns session Cookie', () => {
       sandbox.stub(requestify, 'post', (url, body, option) => {
         let headers = {'set-cookie': ['atlassian.xsrf.token=BGJJ-I70H-EYI8-6QPB|2ae8e3125acff97369f184a4530b59f9d983c12d|lout; Path=/; Secure', 'JSESSIONID=913F47DAFCA6D7FF09A65537D5BD3C5C; Path=/; Secure; HttpOnly', 'studio.crowd.tokenkey=""; Domain=.ulyssjira2.atlassian.net; Expires=Thu, 01-Jan-1970 00:00:10 GMT; Path=/; Secure; HttpOnly', 'studio.crowd.tokenkey=gW34EFQfK8Kbwpp6HkHmng00; Domain=.ulyssjira2.atlassian.net; Path=/; Secure; HttpOnly']};
         let response = '{"session": {"name": "studio.crowd.tokenkey"}, "loginInfo": {"failedLoginCount": 1, "loginCount": 230, "lastFailedLoginTime": "2017-01-17T10:20:43.467+0100", "previousLoginTime": "2017-01-17T17:11:46.798+0100"}}';
