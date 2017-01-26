@@ -17,41 +17,59 @@ beforeEach(() => sandbox = sinon.sandbox.create());
 afterEach(() => sandbox.restore());
 
 
-describe('getBaseUrl', () => {
-  it('getBaseUrl() returns base url if valid url', () => {
-    let url = 'http://www.dummyserver:23456/rest/api/2/issue/ID-5';
-    expect(getBaseUrl(url)).to.equal('http://www.dummyserver:23456/rest/');
-  });
-  it('getBaseUrl() throw error if missing url', () => {
-    expect(() => getBaseUrl()).to.throw(Error);
-  });
-  it('getBaseUrl() throw error if invalid url', () => {
-    let url = 'http://www.dummyserver:23456/bla/bla/bla';
-    expect(() => getBaseUrl(url)).to.throw(Error);
-  });
+describe.only('getBaseUrl', () => {
+  it('getBaseUrl() returns base url if valid url', () => testThat
+    .given(() => 'http://www.dummyserver:23456/rest/api/2/issue/ID-5')
+    .when((url) => getBaseUrl(url))
+    .then((baseUrl) => expect(baseUrl).to.equal('http://www.dummyserver:23456/rest/'))
+  );
+  it('getBaseUrl() throw error if missing url', () => testThat
+    .given()
+    .when(() => () => getBaseUrl())
+    .then((func) => expect(func).to.throw(Error))
+  );
+  it('getBaseUrl() throw error if invalid url', () => testThat
+      .given(() => 'http://www.dummyserver:23456/bla/bla/bla')
+      .when((url) => () => getBaseUrl(url))
+      .then((func) => expect(func).to.throw(Error))
+  );
 
   describe('extractSessionCookie', () => {
-    it('extractSessionCookie() throw error if cookie name not specified', () => {
-      expect(() => extract(['fake="KHG8768"'])).to.throw(Error);
-    });
-    it('extractSessionCookie() throw error if cookies not specified', () => {
-      expect(() => extract()).to.throw(Error);
-    });
-    it('extractSessionCookie() throw error if cookies is not an array', () => {
-      expect(() => extract('fake="KHG987J"', 'fake')).to.throw(Error);
-    });
-    it('extractSessionCookie() returns sessionCookie when only one cookie', () => {
-      expect(extract(['cookie1="LKJHLKJ8768H"'], 'cookie1')).to.equal('cookie1="LKJHLKJ8768H"');
-    });
-    it('extractSessionCookie() throw error if cookie name not found in cookies', () => {
-      expect(() => extract(['cookie1="LKJHLKJ8768H"'], 'cookie2')).to.throw(Error);
-    });
-    it('extractSessionCookie() returns sessionCookie when multiple cookies', () => {
-      expect(extract(['cookie1="LKJHLKJ8768H"', 'cookie2="KJHG76KHJB"', 'cookie3="JRS8MLKJKJF"', 'cookie4="JH8976HGFCJ"'], 'cookie3')).to.equal('cookie3="JRS8MLKJKJF"');
-    });
-    it('extractSessionCookie() returns sessionCookie when multiple cookies and empty cookie with cookie name ignored', () => {
-      expect(extract(['cookie1="LKJHLKJ8768H"', 'cookie2="KJHG76KHJB"', 'cookie3=""', 'cookie3="JH8976HGFCJ"'], 'cookie3')).to.equal('cookie3="JH8976HGFCJ"');
-    });
+    it('extractSessionCookie() throw error if cookie name not specified', () => testThat
+      .given(() => 'fake="KHG8768"')
+      .when((cookie) => () => extract(cookie))
+      .then((func) => expect(func).to.throw(Error))
+    );
+    it('extractSessionCookie() throw error if cookies not specified', () => testThat
+      .given()
+      .when(() => () => extract())
+      .then((func) => expect(func).to.throw(Error))
+    );
+    it('extractSessionCookie() throw error if cookies is not an array', () => testThat
+      .given(() => ({cookies: 'fake="KHG987J"', name: 'fake'}))
+      .then((data) => () => extract(data.cookies, data.name))
+      .then((func) => expect(func).to.throw(Error))
+    );
+    it('extractSessionCookie() returns sessionCookie when only one cookie', () => testThat
+      .given(() => ({cookies: ['cookie1="LKJHLKJ8768H"'], name: 'cookie1'}))
+      .when((data) => extract(data.cookies, data.name))
+      .then((cookie) => expect(cookie).to.equal('cookie1="LKJHLKJ8768H"'))
+    );
+    it('extractSessionCookie() throw error if cookie name not found in cookies', () => testThat
+      .given(() => ({cookies: ['cookie1="LKJHLKJ8768H"'], name: 'cookie2'}))
+      .when((data) => () => extract(data.cookies, data.name))
+      .then((func) => expect(func).to.throw(Error))
+    );
+    it('extractSessionCookie() returns sessionCookie when multiple cookies', () => testThat
+      .given(() => ({cookies: ['cookie1="LKJHLKJ8768H"', 'cookie2="KJHG76KHJB"', 'cookie3="JRS8MLKJKJF"', 'cookie4="JH8976HGFCJ"'], name: 'cookie3'}))
+      .when((data) => extract(data.cookies, data.name))
+      .then((cookie) => expect(cookie).to.equal('cookie3="JRS8MLKJKJF"'))
+    );
+    it('extractSessionCookie() returns sessionCookie when multiple cookies and empty cookie with cookie name ignored', () => testThat
+      .given(() => ({cookies: ['cookie1="LKJHLKJ8768H"', 'cookie2="KJHG76KHJB"', 'cookie3=""', 'cookie3="JH8976HGFCJ"'], name: 'cookie3'}))
+      .when((data) => extract(data.cookies, data.name))
+      .then((cookie) => expect(cookie).to.equal('cookie3="JH8976HGFCJ"'))
+    );
   });
 
   describe('getHeader', () => {
